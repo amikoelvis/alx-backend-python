@@ -87,3 +87,31 @@ Creates user_data table if it doesn’t exist.
 
 **insert_data(connection, data)**
 Inserts rows from CSV into the table (avoids duplicates).
+
+---
+
+# 🔁 Task 1: Stream Users with Python Generators
+
+## 📌 Objective
+
+Create a Python generator that streams rows from a MySQL database table (`user_data`) **one by one** using the `yield` keyword. This promotes memory efficiency and lazy data processing.
+
+---
+
+## 📁 File Structure
+
+.
+├── 0-stream_users.py # Contains the stream_users generator function
+├── seed.py # Sets up the database and inserts data
+├── user_data.csv # CSV file used to seed data
+└── 0-main.py # (Optional) Script to test the generator
+
+---
+
+## 🚀 Function Prototype
+
+````python
+def stream_users():
+    ```
+    """Generator that yields user_data rows from MySQL one at a time"""
+````
