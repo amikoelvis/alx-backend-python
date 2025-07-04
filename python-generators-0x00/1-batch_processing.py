@@ -31,3 +31,4 @@ def batch_processing(batch_size):
         for user in batch:                                  # loop 2
             if float(user['age']) > 25:
                 yield user                                  # generator yield
+        return
