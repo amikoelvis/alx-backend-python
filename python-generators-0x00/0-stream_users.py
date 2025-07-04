@@ -4,7 +4,7 @@ def stream_users():
     connection = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="your_password",   # Replace with your MySQL credentials
+        password="your_password",
         database="ALX_prodev"
     )
 

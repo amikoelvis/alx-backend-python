@@ -10,7 +10,7 @@ def connect_db():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="your_password"  # replace with your actual root password
+        password="your_password"
     )
 
 # 1. Create the ALX_prodev DB if it doesn't exist
