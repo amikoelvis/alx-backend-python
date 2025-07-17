@@ -57,7 +57,6 @@ class TestGetJson(unittest.TestCase):
         mock_get.assert_called_once_with(test_url)
         self.assertEqual(result, test_payload)
 
-
 class TestMemoize(unittest.TestCase):
     """Test cases for the memoize decorator."""
 
@@ -79,18 +78,18 @@ class TestMemoize(unittest.TestCase):
         test_obj = TestClass()
 
         with patch.object(test_obj, "a_method", return_value=42) as mock_method:
-            # First call -> should call a_method
+            # First call should call a_method
             result1 = test_obj.a_property
-            # Second call -> should return cached value, not call a_method again
+            # Second call should return cached value,
+            # without calling a_method again
             result2 = test_obj.a_property
 
             # Both results should be correct
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
 
-            # a_method should only be called once
+            # a_method should only be called once in total
             mock_method.assert_called_once()
-
 
 if __name__ == "__main__":
     unittest.main()
