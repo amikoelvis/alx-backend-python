@@ -7,7 +7,7 @@ from utils import access_nested_map
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    """Test case for access_nested_map function."""
+    """Test cases for access_nested_map function."""
 
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
@@ -17,6 +17,21 @@ class TestAccessNestedMap(unittest.TestCase):
     def test_access_nested_map(self, nested_map, path, expected):
         """Test access_nested_map returns correct value for given path."""
         self.assertEqual(access_nested_map(nested_map, path), expected)
+
+    @parameterized.expand([
+        ({}, ("a",), "a"),             # empty dict, missing "a"
+        ({"a": 1}, ("a", "b"), "b"),   # found "a" but missing "b"
+    ])
+    def test_access_nested_map_exception(self, nested_map, path, expected_key):
+        """
+        Test that KeyError is raised for missing keys,
+        and the exception message matches the missing key.
+        """
+        with self.assertRaises(KeyError) as cm:
+            access_nested_map(nested_map, path)
+
+        # Exception message should be the missing key
+        self.assertEqual(str(cm.exception), f"'{expected_key}'")
 
 
 if __name__ == "__main__":
