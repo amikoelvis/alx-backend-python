@@ -4,7 +4,7 @@
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
-from utils import access_nested_map, get_json
+from utils import access_nested_map, get_json, memoize
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestGetJson(unittest.TestCase):
         """
         Test get_json returns expected payload and calls requests.get once.
         """
-        # Create a Mock response object with .json() returning test_payload
+        # Mock response with .json() returning test_payload
         mock_response = Mock()
         mock_response.json.return_value = test_payload
         mock_get.return_value = mock_response
@@ -56,6 +56,40 @@ class TestGetJson(unittest.TestCase):
         # Assertions
         mock_get.assert_called_once_with(test_url)
         self.assertEqual(result, test_payload)
+
+
+class TestMemoize(unittest.TestCase):
+    """Test cases for the memoize decorator."""
+
+    def test_memoize(self):
+        """Test that memoize caches the result after first call."""
+
+        class TestClass:
+            """Inner class to test memoization."""
+
+            def a_method(self):
+                """Return a fixed value."""
+                return 42
+
+            @memoize
+            def a_property(self):
+                """Return the value of a_method, memoized."""
+                return self.a_method()
+
+        test_obj = TestClass()
+
+        with patch.object(test_obj, "a_method", return_value=42) as mock_method:
+            # First call -> should call a_method
+            result1 = test_obj.a_property
+            # Second call -> should return cached value, not call a_method again
+            result2 = test_obj.a_property
+
+            # Both results should be correct
+            self.assertEqual(result1, 42)
+            self.assertEqual(result2, 42)
+
+            # a_method should only be called once
+            mock_method.assert_called_once()
 
 
 if __name__ == "__main__":
