@@ -64,7 +64,6 @@ class TestMemoize(unittest.TestCase):
     def test_memoize(self):
         """Test that memoize caches the result after first call."""
 
-
         class TestClass:
             """Inner class to test memoization."""
 
@@ -92,6 +91,7 @@ class TestMemoize(unittest.TestCase):
 
             # a_method should only be called once in total
             mock_method.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
