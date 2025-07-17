@@ -57,11 +57,13 @@ class TestGetJson(unittest.TestCase):
         mock_get.assert_called_once_with(test_url)
         self.assertEqual(result, test_payload)
 
+
 class TestMemoize(unittest.TestCase):
     """Test cases for the memoize decorator."""
 
     def test_memoize(self):
         """Test that memoize caches the result after first call."""
+
 
         class TestClass:
             """Inner class to test memoization."""
