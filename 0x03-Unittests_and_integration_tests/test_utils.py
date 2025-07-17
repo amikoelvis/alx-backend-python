@@ -81,7 +81,9 @@ class TestMemoize(unittest.TestCase):
         with patch.object(test_obj, "a_method", return_value=42) as mock_method:
             # First call should call a_method
             result1 = test_obj.a_property
+
             # Second call should return cached value
+            # It should NOT call a_method again
             result2 = test_obj.a_property
 
             # Both results should be correct
