@@ -61,9 +61,9 @@ class Conversation(models.Model):
 class Message(models.Model):
     message_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages_sent")
+    message_body = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages_sent")
     content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
     def __str__(self):
