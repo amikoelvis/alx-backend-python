@@ -1,16 +1,11 @@
-from django.urls import path, include            # Explicit import
-from rest_framework import routers               # Explicit DRF router import
+from django.contrib import admin
+from django.urls import path, include   # include is required for nested routes
 
-from .views import ConversationViewSet, MessageViewSet
-
-# Create DRF router instance
-router = routers.DefaultRouter()
-router.register(r'conversations', ConversationViewSet, basename='conversation')
-router.register(r'messages', MessageViewSet, basename='message')
-
-# Include router-generated URLs
 urlpatterns = [
-    path('', include(router.urls)),              # All routes from the router
+    path('admin/', admin.site.urls),
+
+    #  All API endpoints from the chats app will now live under /api/
+    path('api/', include('chats.urls')),
 ]
 
-# always explicitly include from django.urls import path, include and clearly call routers.DefaultRouter()
+# always explicitly include from django.urls import path, include
