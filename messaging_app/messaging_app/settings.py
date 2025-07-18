@@ -41,6 +41,27 @@ INSTALLED_APPS = [
     'chats',
 ]
 
+# Django REST Framework configuration
+REST_FRAMEWORK = {
+    # Default permission for all views (can override per-view)
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    # Default authentication mechanisms
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        # Later we can add TokenAuthentication or JWT
+    ],
+
+    # Optional: default renderers (JSON + Browsable API)
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
