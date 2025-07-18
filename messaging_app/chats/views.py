@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -16,15 +16,18 @@ class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # Add DRF filters for ordering/search
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["participants__email", "participants__first_name", "participants__last_name"]
+    ordering_fields = ["created_at"]
+    ordering = ["-created_at"]
+
     def get_queryset(self):
         """Only show conversations where the logged-in user is a participant"""
         return self.queryset.filter(participants=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a new conversation with a list of participant_ids.
-        Always include the logged-in user as a participant.
-        """
+        """Create a new conversation with participant_ids, always including the logged-in user"""
         serializer = ConversationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -48,10 +51,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def send_message(self, request, pk=None):
-        """
-        Custom endpoint to send a message in an existing conversation.
-        POST /api/conversations/<id>/send_message/
-        """
+        """Custom endpoint to send a message in an existing conversation"""
         conversation = self.get_object()
         message_body = request.data.get("message_body")
 
@@ -73,17 +73,28 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    # Add DRF filters for searching messages & ordering
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["message_body", "sender__email", "sender__first_name", "sender__last_name"]
+    ordering_fields = ["sent_at"]
+    ordering = ["-sent_at"]
+
     def get_queryset(self):
         """
-        Only list messages in conversations the user participates in
+        Only list messages in conversations the user participates in.
+        Optional filter: ?conversation=<uuid> to limit to one conversation
         """
-        return self.queryset.filter(conversation__participants=self.request.user)
+        qs = self.queryset.filter(conversation__participants=self.request.user)
+
+        # Optional query param for filtering messages by conversation_id
+        conversation_id = self.request.query_params.get("conversation")
+        if conversation_id:
+            qs = qs.filter(conversation__conversation_id=conversation_id)
+
+        return qs
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a new message for a conversation.
-        Must include 'conversation_id' and 'message_body' in request.data
-        """
+        """Create a new message for a conversation"""
         conversation_id = request.data.get("conversation_id")
         message_body = request.data.get("message_body")
 
