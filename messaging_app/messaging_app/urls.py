@@ -15,11 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include   # Always explicitly include path & include
+from django.urls import path, include  # include is required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # All API endpoints from the chats app will now live under /api/
+    # All chats API endpoints now live under /api/
     path('api/', include('chats.urls')),
+
+    # Add DRF's browsable API login/logout
+    path('api-auth/', include('rest_framework.urls')),
 ]
+
+# api-auth/ should be included so you can use Django REST Framework’s built-in authentication views (login/logout for the browsable API).

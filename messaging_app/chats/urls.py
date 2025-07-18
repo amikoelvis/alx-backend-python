@@ -16,3 +16,5 @@ urlpatterns = [
     path('', include(router.urls)),              # /conversations/
     path('', include(conversations_router.urls)) # /conversations/<id>/messages/
 ]
+
+# Django rest framework DefaultRouter should automatically create the conversations and messages for your viewsets using NestedDefaultRouter in chats/urls.py here
