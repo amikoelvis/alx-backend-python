@@ -76,15 +76,15 @@ class TestMemoize(unittest.TestCase):
                 """Return the value of a_method, memoized."""
                 return self.a_method()
 
-        test_obj = TestClass()
+        obj = TestClass()
 
-        with patch.object(test_obj, "a_method", return_value=42) as mock_method:
+        with patch.object(obj, "a_method", return_value=42) as mock_method:
             # First call should call a_method
-            result1 = test_obj.a_property
+            result1 = obj.a_property
 
             # Second call should return cached value
             # It should NOT call a_method again
-            result2 = test_obj.a_property
+            result2 = obj.a_property
 
             # Both results should be correct
             self.assertEqual(result1, 42)
