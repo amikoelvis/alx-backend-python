@@ -4,10 +4,10 @@ Unit and integration tests for GithubOrgClient
 """
 
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, Mock
 from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
-from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+import fixtures  # Use full module import to avoid reference issues
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -76,10 +76,10 @@ class TestGithubOrgClient(unittest.TestCase):
 
 @parameterized_class([
     {
-        "org_payload": org_payload,
-        "repos_payload": repos_payload,
-        "expected_repos": expected_repos,
-        "apache2_repos": apache2_repos,
+        "org_payload": fixtures.org_payload,
+        "repos_payload": fixtures.repos_payload,
+        "expected_repos": fixtures.expected_repos,
+        "apache2_repos": fixtures.apache2_repos,
     }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
@@ -93,14 +93,11 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         def side_effect(url):
             """Return different payloads based on requested URL"""
-            mock_response = unittest.mock.Mock()
-            mock_response.raise_for_status = unittest.mock.Mock()
+            mock_response = Mock()
+            mock_response.raise_for_status = Mock()
 
-            # First call to org endpoint
             if url == "https://api.github.com/orgs/test-org":
                 mock_response.json.return_value = cls.org_payload
-
-            # Second call to repos_url endpoint
             elif url == cls.org_payload["repos_url"]:
                 mock_response.json.return_value = cls.repos_payload
 
