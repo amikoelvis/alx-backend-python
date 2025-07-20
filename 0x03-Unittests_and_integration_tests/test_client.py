@@ -31,7 +31,7 @@ class TestGithubOrgClient(unittest.TestCase):
         )
 
     def test_public_repos_url(self):
-        """Test that _public_repos_url returns correct URL based on mocked org"""
+        """Test _public_repos_url returns correct URL from mocked org"""
         test_url = "https://api.github.com/orgs/fake-org/repos"
 
         with patch.object(
