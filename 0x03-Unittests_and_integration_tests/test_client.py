@@ -19,7 +19,7 @@ class TestGithubOrgClient(unittest.TestCase):
     ])
     @patch("client.get_json")
     def test_org(self, org_name, mock_get_json):
-        """Step 4: Test that GithubOrgClient.org returns the correct value"""
+        """Test GithubOrgClient.org returns expected value"""
         expected = {"login": org_name, "id": 1}
         mock_get_json.return_value = expected
 
@@ -32,7 +32,7 @@ class TestGithubOrgClient(unittest.TestCase):
         )
 
     def test_public_repos_url(self):
-        """Step 5: Test _public_repos_url returns correct URL from mocked org"""
+        """Test _public_repos_url returns correct URL from mocked org"""
         test_url = "https://api.github.com/orgs/fake-org/repos"
 
         with patch.object(
@@ -47,7 +47,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
-        """Step 6: Test GithubOrgClient.public_repos with mocked data"""
+        """Test GithubOrgClient.public_repos with mocked data"""
         fake_repos_payload = [
             {"name": "repo1", "license": {"key": "apache-2.0"}},
             {"name": "repo2", "license": {"key": "mit"}},
@@ -76,7 +76,7 @@ class TestGithubOrgClient(unittest.TestCase):
         ({"license": {"key": "other_license"}}, "my_license", False),
     ])
     def test_has_license(self, repo, license_key, expected):
-        """Step 7: Test GithubOrgClient.has_license returns correct boolean"""
+        """Test GithubOrgClient.has_license returns correct boolean"""
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
@@ -94,7 +94,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Step 8: Patch requests.get and set up side_effect"""
+        """Patch requests.get and set up side_effect"""
         cls.get_patcher = patch('requests.get')
         cls.mock_get = cls.get_patcher.start()
 
@@ -117,12 +117,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher.stop()
 
     def test_public_repos(self):
-        """Step 9: Test public_repos returns expected repo list"""
+        """Test public_repos returns expected repo list"""
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
-        """Step 9: Test public_repos filters by Apache 2.0 license"""
+        """Test public_repos filters by Apache 2.0 license"""
         client = GithubOrgClient("google")
         self.assertEqual(
             client.public_repos(license="apache-2.0"),
