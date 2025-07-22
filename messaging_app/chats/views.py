@@ -92,10 +92,10 @@ class MessageViewSet(viewsets.ModelViewSet):
         Only list messages in conversations the user participates in.
         Optional filter: ?conversation=<uuid> to limit to one conversation
         """
-        qs = self.queryset.filter(conversation__participants=self.request.user)
-
-        # Optional query param for filtering messages by conversation_id
         conversation_id = self.request.query_params.get("conversation")
+        qs = Message.objects.filter(conversation__participants=self.request.user)
+
+        # Optional filter for specific conversation_id
         if conversation_id:
             qs = qs.filter(conversation__conversation_id=conversation_id)
 
@@ -118,6 +118,8 @@ class MessageViewSet(viewsets.ModelViewSet):
 
         # Get conversation & validate participant
         conversation = get_object_or_404(Conversation, conversation_id=conversation_id)
+        
+        # Check if the user is a participant in the conversation
         if request.user not in conversation.participants.all():
             return Response({"error": "You are not part of this conversation"}, status=status.HTTP_403_FORBIDDEN)
 
