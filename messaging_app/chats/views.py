@@ -1,3 +1,5 @@
+# messaging_app/chats/views.py
+
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -10,13 +12,13 @@ from .serializers import (
     ConversationCreateSerializer,
     MessageSerializer
 )
-from .permissions import IsUserInConversation  # Import the custom permission
+from .permissions import IsAuthenticatedAndParticipant  # Import the custom permission
 
 # Conversation ViewSet
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated, IsUserInConversation]  # Added custom permission
+    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Applied custom permission
     authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for ordering/search
@@ -78,7 +80,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().select_related("conversation", "sender")
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated, IsUserInConversation]  # Added custom permission
+    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Applied custom permission
     authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for searching messages & ordering

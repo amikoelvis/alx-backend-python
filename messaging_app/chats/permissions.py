@@ -2,21 +2,27 @@
 
 from rest_framework import permissions
 
-class IsUserInConversation(permissions.BasePermission):
-    """Custom permission to ensure users can only access their own conversations and messages."""
-    
+class IsAuthenticatedAndParticipant(permissions.BasePermission):
+    """
+    Custom permission to only allow participants of a conversation to send, view, update, or delete messages.
+    """
+
     def has_permission(self, request, view):
-        # Ensure the user is authenticated
+        # Ensure user is authenticated
         if not request.user.is_authenticated:
             return False
 
-        # If the view is for listing conversations, check if the user is a participant
-        if view.action == 'list':
-            return request.user in view.get_queryset().first().participants.all()
-
-        # If the view is for a specific conversation or message, ensure user is a participant
+        # If the action is related to a specific conversation or message
         if hasattr(view, 'get_object'):
             conversation = view.get_object()
             return request.user in conversation.participants.all()
-        
+
+        # Allow the listing action to proceed as it's not linked to a specific conversation
         return True
+
+    def has_object_permission(self, request, view, obj):
+        """
+        This method ensures that the user can perform the action only if they are part of the conversation.
+        """
+        # Only participants can access a specific message or conversation
+        return request.user in obj.participants.all()
