@@ -1,22 +1,21 @@
-from rest_framework import viewsets, permissions, status, filters
+from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Conversation, Message, User
-from .serializers import (
-    ConversationSerializer,
-    ConversationCreateSerializer,
-    MessageSerializer
-)
-from .permissions import IsAuthenticatedAndParticipant  # Import the custom permission
+from .serializers import MessageSerializer, ConversationSerializer, ConversationCreateSerializer  # Add this import
+from .pagination import MessagePagination  # Import custom pagination
+from .filters import MessageFilter  # Import custom filtering class
+from .permissions import IsAuthenticatedAndParticipant  # Apply custom permission
 
 # Conversation ViewSet
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Apply custom permission
+    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]
     authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for ordering/search
@@ -81,11 +80,14 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Apply custom permission
     authentication_classes = [JWTAuthentication]
 
+    # Pagination
+    pagination_class = MessagePagination  # Apply custom pagination
+
     # Add DRF filters for searching messages & ordering
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["message_body", "sender__email", "sender__first_name", "sender__last_name"]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = MessageFilter  # Apply custom filter class
     ordering_fields = ["sent_at"]
-    ordering = ["-sent_at"]
+    ordering = ["-sent_at"]  # Default ordering by sent_at descending
 
     def get_queryset(self):
         """
