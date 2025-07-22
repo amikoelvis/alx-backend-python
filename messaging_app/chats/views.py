@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Conversation, Message, User
 from .serializers import (
@@ -15,6 +16,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for ordering/search
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -25,6 +27,10 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Only show conversations where the logged-in user is a participant"""
         return self.queryset.filter(participants=self.request.user)
+    
+    def perform_create(self, serializer):
+        # Ensure the logged-in user is added as a participant when creating a conversation
+        serializer.save(participants=[self.request.user])
 
     def create(self, request, *args, **kwargs):
         """Create a new conversation with participant_ids, always including the logged-in user"""
@@ -72,6 +78,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().select_related("conversation", "sender")
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for searching messages & ordering
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -92,6 +99,10 @@ class MessageViewSet(viewsets.ModelViewSet):
             qs = qs.filter(conversation__conversation_id=conversation_id)
 
         return qs
+    
+    def perform_create(self, serializer):
+        """Create a new message while ensuring the sender is the logged-in user"""
+        serializer.save(sender=self.request.user)
 
     def create(self, request, *args, **kwargs):
         """Create a new message for a conversation"""

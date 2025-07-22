@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include  # include is required
+from rest_framework_simplejwt import views as jwt_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,10 @@ urlpatterns = [
 
     # Add DRF's browsable API login/logout
     path('api-auth/', include('rest_framework.urls')),
+
+    # JWT Token URLs
+    path('api/token', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'), # This will allow users to log in and get a JWT access token.
+    path('api/token/refresh', jwt_views.TokenRefreshView.as_view(), name='token_refresh'), # This will allow users to refresh their JWT token (useful for keeping the user logged in without re-authenticating).
 ]
 
 # api-auth/ should be included so you can use Django REST Framework’s built-in authentication views (login/logout for the browsable API).

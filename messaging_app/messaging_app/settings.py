@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt'
     'chats',
 ]
 
@@ -53,6 +54,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         # Later we can add TokenAuthentication or JWT
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
 
     # Optional: default renderers (JSON + Browsable API)
