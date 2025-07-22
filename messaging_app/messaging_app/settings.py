@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'chats',
 ]
 
+# Pagination settings
+PAGE_SIZE = 20  # Default number of items per page
+
+DEFAULT_PAGINATION_CLASS = 'rest_framework.pagination.PageNumberPagination'  # Default pagination class
+
+
 # Django REST Framework configuration
 REST_FRAMEWORK = {
     # Default permission for all views (can override per-view)
