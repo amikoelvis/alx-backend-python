@@ -25,4 +25,10 @@ class IsAuthenticatedAndParticipant(permissions.BasePermission):
         This method ensures that the user can perform the action only if they are part of the conversation.
         """
         # Only participants can access a specific message or conversation
-        return request.user in obj.participants.all()
+        if request.user in obj.participants.all():
+            if request.method in permissions.SAFE_METHODS:  # GET, HEAD, OPTIONS
+                return True
+
+            # Allow modification or deletion (PUT, PATCH, DELETE) only if the user is a participant
+            return request.user == obj.sender  # Allow if the user is the sender of the message
+        return False

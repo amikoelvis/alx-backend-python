@@ -1,5 +1,3 @@
-# messaging_app/chats/views.py
-
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -18,7 +16,7 @@ from .permissions import IsAuthenticatedAndParticipant  # Import the custom perm
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Applied custom permission
+    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Apply custom permission
     authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for ordering/search
@@ -65,7 +63,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
         message_body = request.data.get("message_body")
 
         if not message_body:
-            return Response({"error": "Message body cannot be empty"}, status=400)
+            return Response({"error": "Message body cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create the message
         message = Message.objects.create(
@@ -73,14 +71,14 @@ class ConversationViewSet(viewsets.ModelViewSet):
             sender=request.user,
             message_body=message_body
         )
-        return Response(MessageSerializer(message).data, status=201)
+        return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
 
 
 # Message ViewSet
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().select_related("conversation", "sender")
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Applied custom permission
+    permission_classes = [permissions.IsAuthenticated, IsAuthenticatedAndParticipant]  # Apply custom permission
     authentication_classes = [JWTAuthentication]
 
     # Add DRF filters for searching messages & ordering
@@ -115,13 +113,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         if not conversation_id or not message_body:
             return Response(
                 {"error": "conversation_id and message_body are required"},
-                status=400
+                status=status.HTTP_400_BAD_REQUEST
             )
 
         # Get conversation & validate participant
         conversation = get_object_or_404(Conversation, conversation_id=conversation_id)
         if request.user not in conversation.participants.all():
-            return Response({"error": "You are not part of this conversation"}, status=403)
+            return Response({"error": "You are not part of this conversation"}, status=status.HTTP_403_FORBIDDEN)
 
         # Create the message
         message = Message.objects.create(
@@ -129,4 +127,34 @@ class MessageViewSet(viewsets.ModelViewSet):
             sender=request.user,
             message_body=message_body
         )
-        return Response(MessageSerializer(message).data, status=201)
+        return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        """Override update method to add participant check"""
+        message = self.get_object()
+
+        # Check if the user is the sender of the message
+        if message.sender != request.user:
+            return Response({"error": "You are not allowed to update this message"}, status=status.HTTP_403_FORBIDDEN)
+
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        """Override partial update method to add participant check"""
+        message = self.get_object()
+
+        # Check if the user is the sender of the message
+        if message.sender != request.user:
+            return Response({"error": "You are not allowed to update this message"}, status=status.HTTP_403_FORBIDDEN)
+
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy method to add participant check"""
+        message = self.get_object()
+
+        # Check if the user is the sender of the message
+        if message.sender != request.user:
+            return Response({"error": "You are not allowed to delete this message"}, status=status.HTTP_403_FORBIDDEN)
+
+        return super().destroy(request, *args, **kwargs)
