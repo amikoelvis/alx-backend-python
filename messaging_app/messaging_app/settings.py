@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt'
-    'django_filters'
+    'rest_framework_simplejwt',
+    'django_filters',
     'chats',
 ]
 
@@ -154,3 +154,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'chats.User'
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'user_id',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    # Other configurations for Simple JWT
+}
