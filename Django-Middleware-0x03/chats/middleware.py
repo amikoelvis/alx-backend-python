@@ -20,7 +20,7 @@ class RequestLoggingMiddleware:
         # Ensure 'user' is always defined
         user = 'Anonymous'  # Default to 'Anonymous'
         if request.user.is_authenticated:
-            user = request.user.email  # Or use any field you prefer, like request.user.username
+            user = request.user.email
         
         # Log the details (timestamp, user, and request path)
         log_message = f"{datetime.now()} - User: {user} - Path: {request.path}"
@@ -92,3 +92,23 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only check user role for specific actions, e.g., POST requests to send a message
+        if request.method == "POST" and request.path.startswith('/api/messages/'):
+            user = request.user
+
+            # Check if the user is an admin or moderator
+            if not user.is_admin and not user.is_moderator:
+                return JsonResponse(
+                    {"error": "You do not have permission to perform this action."},
+                    status=403
+                )
+
+        # Proceed with the next middleware or view
+        response = self.get_response(request)
+        return response
