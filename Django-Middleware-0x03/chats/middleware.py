@@ -12,23 +12,17 @@ logger.addHandler(file_handler)
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        # One-time configuration and initialization.
 
     def __call__(self, request):
-        # Code to be executed for each request before
-        # the view (and later middleware) are called.
-
-        # Check if the user is authenticated
-        user = user.request if request.user.is_authenticated else 'Anonymous'
-
+        # Ensure 'user' is always defined
+        user = 'Anonymous'  # Default to 'Anonymous'
+        if request.user.is_authenticated:
+            user = request.user.email  # Or use any field you prefer, like request.user.username
+        
         # Log the details (timestamp, user, and request path)
         log_message = f"{datetime.now()} - User: {user} - Path: {request.path}"
         logger.info(log_message)
 
-        # Get the response and return it 
+        # Get the response and return it
         response = self.get_response(request)
-
-        # Code to be executed for each request/response after
-        # the view is called.
-
         return response
