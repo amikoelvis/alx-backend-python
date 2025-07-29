@@ -1,9 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
 from messaging.models import Message
-from messaging.forms import MessageForm
 
 @login_required
 def delete_user(request):
@@ -19,14 +18,13 @@ def get_conversation(user):
         )
 
 @login_required
-def send_message(request):
+def send_dummy_message(request):
     if request.method == 'POST':
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.sender = request.user
-            message.save()
-            return redirect('inbox')  # or wherever
-    else:
-        form = MessageForm()
-    return render(request, 'messaging/send_message.html', {'form': form})
+        receiver = User.objects.first()
+        message = Message.objects.create(
+            sender=request.user, 
+            receiver=receiver,
+            content="Hello!",
+        )
+        return redirect('inbox')  # or anywhere
+

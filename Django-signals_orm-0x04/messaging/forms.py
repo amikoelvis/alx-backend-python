@@ -1,5 +1,5 @@
 from django import forms
-from messaging.models import Message
+from .models import Message
 
 class MessageForm(forms.ModelForm):
     class Meta:
