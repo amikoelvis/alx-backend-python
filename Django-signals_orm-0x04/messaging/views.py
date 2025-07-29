@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from django.db.models import Prefetch
 from messaging.models import Message
@@ -28,3 +28,7 @@ def send_dummy_message(request):
         )
         return redirect('inbox')  # or anywhere
 
+@login_required
+def unread_inbox(request):
+    unread_messages = Message.unread.for_user(request.user)  # ✅ Uses the custom manager
+    return render(request, 'messaging/unread_inbox.html', {'messages': unread_messages})
