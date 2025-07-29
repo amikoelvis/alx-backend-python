@@ -30,5 +30,5 @@ def send_dummy_message(request):
 
 @login_required
 def unread_inbox(request):
-    unread_messages = Message.unread.for_user(request.user)  # ✅ Uses the custom manager
+    unread_messages = Message.unread.unread_for_user(request.user)  # ✅ exact name
     return render(request, 'messaging/unread_inbox.html', {'messages': unread_messages})
