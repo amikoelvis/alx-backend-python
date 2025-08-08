@@ -20,5 +20,8 @@ COPY . .
 # Expose Django's default port
 EXPOSE 8000
 
+# NOTE: The '-p' flag is used at runtime, not in the Dockerfile.
+# docker run -p 8000:8000 messaging_app
+
 # Run migrations and start the server
 CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
