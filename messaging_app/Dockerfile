@@ -11,6 +11,17 @@ WORKDIR /app
 # Copy requirements.txt into container
 COPY requirements.txt .
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+
 # Install dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
