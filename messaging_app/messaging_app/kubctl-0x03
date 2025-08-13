@@ -1,0 +1,28 @@
+#!/bin/bash
+# kubctl-0x03
+# Perform rolling update on BLUE deployment and monitor
+
+set -e
+
+DEPLOYMENT_NAME="django-messaging-blue"
+SERVICE_NAME="django-messaging-service"
+
+echo "🚀 Applying updated BLUE deployment (v2.0)..."
+kubectl apply -f messaging_app/blue_deployment.yaml
+
+echo "📡 Starting Rolling Update..."
+kubectl rollout status deployment/$DEPLOYMENT_NAME
+
+echo "🌐 Getting service access..."
+MINIKUBE_IP=$(minikube ip)
+SERVICE_PORT=$(kubectl get svc $SERVICE_NAME -o=jsonpath='{.spec.ports[0].nodePort}')
+
+echo "🔄 Sending continuous requests to check for downtime..."
+for i in {1..20}; do
+    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://$MINIKUBE_IP:$SERVICE_PORT/)
+    echo "Request $i - HTTP $RESPONSE"
+    sleep 1
+done
+
+echo "✅ Rolling Update complete. Current pods:"
+kubectl get pods -l app=django-messaging
