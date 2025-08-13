@@ -1,0 +1,26 @@
+#!/bin/bash
+# kubctl-0x02
+# Deploy blue and green, check logs of green
+
+set -e
+
+echo "🚀 Deploying BLUE version..."
+kubectl apply -f messaging_app/blue_deployment.yaml
+
+echo "🚀 Deploying GREEN version..."
+kubectl apply -f messaging_app/green_deployment.yaml
+
+echo "⏳ Waiting for pods to start..."
+kubectl rollout status deployment/django-messaging-blue
+kubectl rollout status deployment/django-messaging-green
+
+echo "📦 Current pods:"
+kubectl get pods -l app=django-messaging
+
+GREEN_POD=$(kubectl get pods -l app=django-messaging,version=green -o jsonpath='{.items[0].metadata.name}')
+
+echo "🔍 Checking logs for GREEN version pod: $GREEN_POD"
+kubectl logs "$GREEN_POD"
+
+echo "✅ To switch traffic to GREEN version:"
+echo "kubectl patch service django-messaging-service -p '{\"spec\":{\"selector\":{\"app\":\"django-messaging\",\"version\":\"green\"}}}'"
