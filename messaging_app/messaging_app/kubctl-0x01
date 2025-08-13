@@ -1,0 +1,38 @@
+#!/bin/bash
+# kubctl-0x01
+# Scale Django app, run load testing, and monitor usage
+
+set -e  # Exit if any command fails
+
+DEPLOYMENT_NAME="django-messaging-app"
+SERVICE_NAME="django-messaging-service"
+NAMESPACE="default"  # Change if using a different namespace
+
+echo "📈 Scaling $DEPLOYMENT_NAME to 3 replicas..."
+kubectl scale deployment $DEPLOYMENT_NAME --replicas=3 --namespace=$NAMESPACE
+
+echo "⏳ Waiting for pods to be ready..."
+kubectl rollout status deployment/$DEPLOYMENT_NAME --namespace=$NAMESPACE
+
+echo "✅ Current running pods:"
+kubectl get pods --namespace=$NAMESPACE
+
+echo "🔍 Getting service details..."
+SERVICE_PORT=$(kubectl get svc $SERVICE_NAME --namespace=$NAMESPACE -o=jsonpath='{.spec.ports[0].nodePort}')
+MINIKUBE_IP=$(minikube ip)
+
+echo "🌐 App URL: http://$MINIKUBE_IP:$SERVICE_PORT"
+
+# Ensure wrk is installed
+if ! command -v wrk &> /dev/null; then
+    echo "❌ wrk not found. Please install wrk:"
+    echo "    Linux: sudo apt install wrk"
+    echo "    MacOS: brew install wrk"
+    exit 1
+fi
+
+echo "🚀 Starting load test with wrk (10s, 100 connections, 100 threads)..."
+wrk -t100 -c100 -d10s http://$MINIKUBE_IP:$SERVICE_PORT/
+
+echo "📊 Monitoring resource usage (Ctrl+C to stop)..."
+kubectl top pods --namespace=$NAMESPACE
