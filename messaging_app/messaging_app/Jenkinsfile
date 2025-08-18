@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    tools {
+        python 'Python3'   // Requires ShiningPanda configured under Global Tool Config
+    }
+
+    environment {
+        GITHUB_CREDS = credentials('github-creds')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'github-creds', url: 'https://github.com/amikoelvis/alx-backend-python.git', branch: 'main'
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                sh '''
+                    cd messaging_app
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run tests') {
+            steps {
+                sh '''
+                    cd messaging_app
+                    . venv/bin/activate
+                    pytest --junitxml=pytest-report.xml
+                '''
+            }
+            post {
+                always {
+                    junit 'messaging_app/pytest-report.xml'
+                }
+            }
+        }
+    }
+
+    triggers {
+        // No automatic triggers, pipeline will be manual
+    }
+}
