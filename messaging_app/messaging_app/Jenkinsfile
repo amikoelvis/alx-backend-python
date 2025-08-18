@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        python 'Python3'   // Requires ShiningPanda configured under Global Tool Config
+        python 'Python3'
     }
 
     environment {
@@ -12,7 +12,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-creds', url: 'https://github.com/amikoelvis/alx-backend-python.git', branch: 'main'
+                git branch: 'main',
+                    credentialsId: 'github-creds',
+                    url: 'https://github.com/<your-username>/alx-backend-python.git'
             }
         }
 
@@ -45,6 +47,6 @@ pipeline {
     }
 
     triggers {
-        // No automatic triggers, pipeline will be manual
+        // manual trigger only
     }
 }
