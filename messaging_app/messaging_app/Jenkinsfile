@@ -7,6 +7,8 @@ pipeline {
 
     environment {
         GITHUB_CREDS = credentials('github-creds')
+        DOCKERHUB_CREDS = credentials('dockerhub-creds')
+        DOCKERHUB_REPO = 'https://github.com/amikoelvis/alx-backend-python.git'
     }
 
     stages {
@@ -39,6 +41,25 @@ pipeline {
             post {
                 always {
                     junit 'messaging_app/pytest-report.xml'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker build -t $DOCKERHUB_REPO:latest -f messaging_app/Dockerfile .
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $DOCKERHUB_REPO:latest
+                    '''
                 }
             }
         }
